@@ -5,6 +5,7 @@ import com.github.hardelele.cca.models.entities.CreditParameters;
 import com.github.hardelele.cca.models.transfers.CreditInfo;
 import com.github.hardelele.cca.models.transfers.CreditPayout;
 import com.github.hardelele.cca.models.transfers.PayoutInfo;
+import com.github.hardelele.cca.utils.validators.CreditFormValidator;
 import org.apache.commons.math3.util.Precision;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class CreditCalculatorService {
     }
 
     public List<CreditPayout> getCreditPayouts(CreditForm creditForm) {
+        CreditFormValidator.validate(creditForm);
         CreditInfo creditInfo = buildCreditInfo(creditForm);
         return calculateCreditPayoutsList(creditInfo);
     }
@@ -34,36 +36,29 @@ public class CreditCalculatorService {
 
         double monthlyCoefficient = creditInfo.getMonthCoefficient();
         double annuityPayment = creditInfo.getAnnuityPayment();
+        int paymentTerm = creditInfo.getPaymentTerm();
 
         List<CreditPayout> creditPayoutList = new ArrayList<>();
-
-        for (int counter = 0; counter < creditInfo.getPaymentTerm(); counter++) {
-            int number = counter + 1;
+        for (int counter = 0; counter < paymentTerm; counter++) {
             double creditRemainderBeforePayment = creditInfo.getCreditRemainder();
-
             double percentagePart = calculatePercentagePart(creditRemainderBeforePayment, monthlyCoefficient);
             double mainPayout = calculateMainPayout(annuityPayment, percentagePart);
             creditInfo.setCreditRemainder(creditRemainderBeforePayment - mainPayout);
-
-            PayoutInfo payoutInfo = new PayoutInfo(number, mainPayout, percentagePart);
+            PayoutInfo payoutInfo = new PayoutInfo(counter, mainPayout, percentagePart);
             creditPayoutList.add(buildCreditPayout(creditInfo, payoutInfo));
         }
         return creditPayoutList;
     }
 
     private CreditPayout buildCreditPayout(CreditInfo creditInfo, PayoutInfo payoutInfo) {
-
-        int number = payoutInfo.getNumber();
-        int counter = number - 1;
-
+        int counter = payoutInfo.getCounter();
+        long   paymentDateTimestamp = LocalDateTime.now().plusMonths(counter).getNano();
         double annuityPayment = Precision.round(creditInfo.getAnnuityPayment(),2);
         double percentagePart = Precision.round(payoutInfo.getPercentagePart(),2);
-        double mainPayout = Precision.round(payoutInfo.getMainPayout(),2);
-        long paymentDateTimestamp = LocalDateTime.now().plusMonths(counter).getNano();
-        double debt = Precision.round(creditInfo.getCreditRemainder(),2);
-
+        double mainPayout     = Precision.round(payoutInfo.getMainPayout(),2);
+        double debt           = Precision.round(creditInfo.getCreditRemainder(),2);
         return CreditPayout.builder()
-                .number(number)
+                .number(counter + 1)
                 .fullPayout(annuityPayment)
                 .percentPayout(percentagePart)
                 .mainPayout(mainPayout)
@@ -73,15 +68,12 @@ public class CreditCalculatorService {
     }
 
     private CreditInfo buildCreditInfo(CreditForm creditForm) {
-        double percent = extractPercent();
-        double yearCoefficient = percent / 100;
-        double monthCoefficient = yearCoefficient / YEAR_MONTHS;
-        double annuityPayment = calculateMonthlyAnnuityPayment(creditForm, monthCoefficient);
         int paymentTerm = creditForm.getPaymentTerm();
-        double creditRemainder = creditForm.getCreditAmount();
-
+        double creditAmount     = creditForm.getCreditAmount();
+        double monthCoefficient = extractPercent() / (YEAR_MONTHS * 100);
+        double annuityPayment   = calculateMonthlyAnnuityPayment(paymentTerm, creditAmount, monthCoefficient);
+        double creditRemainder  = creditForm.getCreditAmount();
         return CreditInfo.builder()
-                .percent(percent)
                 .monthCoefficient(monthCoefficient)
                 .annuityPayment(annuityPayment)
                 .paymentTerm(paymentTerm)
@@ -95,9 +87,7 @@ public class CreditCalculatorService {
         return creditParameters.getPercent();
     }
 
-    private double calculateMonthlyAnnuityPayment(CreditForm creditForm, double monthCoefficient) {
-        double creditAmount = creditForm.getCreditAmount();
-        int paymentTerm = creditForm.getPaymentTerm();
+    private double calculateMonthlyAnnuityPayment(int paymentTerm, double creditAmount, double monthCoefficient) {
         double annuityRatio = monthCoefficient + (monthCoefficient / (Math.pow(1 + monthCoefficient, paymentTerm) - 1));
         return creditAmount * annuityRatio;
     }

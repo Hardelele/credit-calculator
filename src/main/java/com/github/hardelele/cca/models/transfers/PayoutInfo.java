@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PayoutInfo {
 
-    private int number;
+    private int counter;
     private double mainPayout;
     private double percentagePart;
 }

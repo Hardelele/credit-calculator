@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CreditInfo {
 
-    private double percent;
     private double monthCoefficient;
     private double annuityPayment;
     private int paymentTerm;
