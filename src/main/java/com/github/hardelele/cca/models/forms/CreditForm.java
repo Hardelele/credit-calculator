@@ -1,4 +1,4 @@
-package com.github.hardelele.cca.forms;
+package com.github.hardelele.cca.models.forms;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

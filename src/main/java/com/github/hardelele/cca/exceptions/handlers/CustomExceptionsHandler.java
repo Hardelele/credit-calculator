@@ -1,7 +1,7 @@
 package com.github.hardelele.cca.exceptions.handlers;
 
 import com.github.hardelele.cca.exceptions.InvalidPercentException;
-import com.github.hardelele.cca.transfers.ErrorTransfer;
+import com.github.hardelele.cca.models.transfers.ErrorTransfer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

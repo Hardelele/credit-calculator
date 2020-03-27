@@ -1,8 +1,8 @@
 package com.github.hardelele.cca.controllers;
 
-import com.github.hardelele.cca.forms.CreditForm;
+import com.github.hardelele.cca.models.forms.CreditForm;
 import com.github.hardelele.cca.services.CreditCalculatorService;
-import com.github.hardelele.cca.transfers.CreditPayout;
+import com.github.hardelele.cca.models.transfers.CreditPayout;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,4 +1,4 @@
-package com.github.hardelele.cca.transfers;
+package com.github.hardelele.cca.models.transfers;
 
 import lombok.Data;
 

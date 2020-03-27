@@ -1,8 +1,8 @@
 package com.github.hardelele.cca.controllers;
 
-import com.github.hardelele.cca.models.CreditParameters;
+import com.github.hardelele.cca.models.entities.CreditParameters;
 import com.github.hardelele.cca.services.CreditParametersService;
-import com.github.hardelele.cca.transfers.CreditParametersTransfer;
+import com.github.hardelele.cca.models.transfers.CreditParametersTransfer;
 import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

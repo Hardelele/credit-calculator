@@ -1,6 +1,6 @@
 package com.github.hardelele.cca.repositories;
 
-import com.github.hardelele.cca.models.CreditParameters;
+import com.github.hardelele.cca.models.entities.CreditParameters;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

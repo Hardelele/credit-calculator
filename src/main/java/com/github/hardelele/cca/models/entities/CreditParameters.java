@@ -1,4 +1,4 @@
-package com.github.hardelele.cca.models;
+package com.github.hardelele.cca.models.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +17,5 @@ public class CreditParameters {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
-
     private double percent;
 }
