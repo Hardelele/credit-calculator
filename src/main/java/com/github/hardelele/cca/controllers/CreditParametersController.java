@@ -5,11 +5,13 @@ import com.github.hardelele.cca.services.CreditParametersService;
 import com.github.hardelele.cca.transfers.CreditParametersTransfer;
 import org.dozer.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RestController("/params")
+import java.util.List;
+import java.util.stream.Collectors;
+
+@RestController
+@RequestMapping("/parameters")
 public class CreditParametersController {
 
     private final Mapper mapper;
@@ -26,5 +28,12 @@ public class CreditParametersController {
     public CreditParametersTransfer updateCreditParameters(@RequestBody CreditParametersTransfer creditParametersDto) {
         CreditParameters creditParameters = creditParametersService.updateCreditParameters(creditParametersDto);
         return mapper.map(creditParameters, CreditParametersTransfer.class);
+    }
+
+    @GetMapping("/")
+    public List<CreditParametersTransfer> getCreditParameters() {
+        return creditParametersService.getCreditParameters().stream()
+                .map(creditParameters -> mapper.map(creditParameters, CreditParametersTransfer.class))
+                .collect(Collectors.toList());
     }
 }
