@@ -1,12 +1,14 @@
-package com.github.hardelele.cca.transfers;
+package com.github.hardelele.cca.models.transfers;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class CreditPayout {
 
     private int number;
