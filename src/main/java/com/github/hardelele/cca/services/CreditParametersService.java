@@ -32,6 +32,16 @@ public class CreditParametersService {
         return creditParametersRepository.save(creditParameters);
     }
 
+    public List<CreditParameters> getCreditParameters() {
+        List<CreditParameters> creditParametersList = creditParametersRepository.findAll();
+        if (creditParametersList.size() < 1) {
+            CreditParameters creditParameters = new CreditParameters();
+            creditParameters.setPercent(12.9);
+            creditParametersList.add(creditParametersRepository.save(creditParameters));
+        }
+        return creditParametersList;
+    }
+
     private CreditParameters extractCreditParametersToSave(CreditParametersTransfer creditParametersTransfer) {
         CreditParameters creditParametersEntity = mapper.map(creditParametersTransfer, CreditParameters.class);
         List<CreditParameters> creditParametersList = creditParametersRepository.findAll();
