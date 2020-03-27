@@ -1,18 +1,19 @@
 package com.github.hardelele.cca.services;
 
-import com.github.hardelele.cca.models.forms.CreditForm;
 import com.github.hardelele.cca.models.entities.CreditParameters;
+import com.github.hardelele.cca.models.forms.CreditForm;
 import com.github.hardelele.cca.models.transfers.CreditInfo;
 import com.github.hardelele.cca.models.transfers.CreditPayout;
 import com.github.hardelele.cca.models.transfers.PayoutInfo;
 import com.github.hardelele.cca.utils.validators.CreditFormValidator;
-import org.apache.commons.math3.util.Precision;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.github.hardelele.cca.utils.builders.CreditBuilders.buildCreditPayout;
+import static com.github.hardelele.cca.utils.builders.CreditBuilders.buildPayoutInfo;
 
 @Service
 public class CreditCalculatorService {
@@ -40,31 +41,10 @@ public class CreditCalculatorService {
 
         List<CreditPayout> creditPayoutList = new ArrayList<>();
         for (int counter = 0; counter < paymentTerm; counter++) {
-            double creditRemainderBeforePayment = creditInfo.getCreditRemainder();
-            double percentagePart = calculatePercentagePart(creditRemainderBeforePayment, monthlyCoefficient);
-            double mainPayout = calculateMainPayout(annuityPayment, percentagePart);
-            creditInfo.setCreditRemainder(creditRemainderBeforePayment - mainPayout);
-            PayoutInfo payoutInfo = new PayoutInfo(counter, mainPayout, percentagePart);
+            PayoutInfo payoutInfo = buildPayoutInfo(creditInfo,annuityPayment, monthlyCoefficient, counter);
             creditPayoutList.add(buildCreditPayout(creditInfo, payoutInfo));
         }
         return creditPayoutList;
-    }
-
-    private CreditPayout buildCreditPayout(CreditInfo creditInfo, PayoutInfo payoutInfo) {
-        int counter = payoutInfo.getCounter();
-        long   paymentDateTimestamp = LocalDateTime.now().plusMonths(counter).getNano();
-        double annuityPayment = Precision.round(creditInfo.getAnnuityPayment(),2);
-        double percentagePart = Precision.round(payoutInfo.getPercentagePart(),2);
-        double mainPayout     = Precision.round(payoutInfo.getMainPayout(),2);
-        double debt           = Precision.round(creditInfo.getCreditRemainder(),2);
-        return CreditPayout.builder()
-                .number(counter + 1)
-                .fullPayout(annuityPayment)
-                .percentPayout(percentagePart)
-                .mainPayout(mainPayout)
-                .timestamp(paymentDateTimestamp)
-                .debt(debt)
-                .build();
     }
 
     private CreditInfo buildCreditInfo(CreditForm creditForm) {
@@ -90,13 +70,5 @@ public class CreditCalculatorService {
     private double calculateMonthlyAnnuityPayment(int paymentTerm, double creditAmount, double monthCoefficient) {
         double annuityRatio = monthCoefficient + (monthCoefficient / (Math.pow(1 + monthCoefficient, paymentTerm) - 1));
         return creditAmount * annuityRatio;
-    }
-
-    private double calculatePercentagePart(double creditRemainder, double monthCoefficient) {
-        return monthCoefficient * creditRemainder;
-    }
-
-    private double calculateMainPayout(double monthlyAnnuityPayment, double percentagePart) {
-        return monthlyAnnuityPayment - percentagePart;
     }
 }
